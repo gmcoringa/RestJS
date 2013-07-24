@@ -4,7 +4,7 @@
 package fabiano.santos.restjs.generator.exception;
 
 /**
- * Exception to identify empty or null urls to be scanned.
+ * Exception to identify empty or null URLs to be scanned.
  * 
  * @author fabiano.santos
  * 

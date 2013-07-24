@@ -16,6 +16,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
+ * Freemarker render utility.
+ * 
  * @author fabiano.santos
  * 
  */

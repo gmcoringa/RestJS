@@ -39,6 +39,9 @@ import fabiano.santos.restjs.generator.render.FreemarkerRender;
 import freemarker.template.TemplateException;
 
 /**
+ * This class generate a javascript based on all JAX-RS annotations found in the
+ * class.
+ * 
  * @author fabiano.santos
  * 
  */
@@ -73,14 +76,25 @@ public class RestJSGenerator {
 		this.basePath = basePath;
 	}
 
+	/**
+	 * Create a JS script based on the Rest found on the URLs class paths. All
+	 * classes with @Path annotation found in the class path URLs will generate
+	 * a javascript command.
+	 * 
+	 * @param nameSpace
+	 *            Name space prefix for commands.
+	 * @param urls
+	 *            Class path URLs
+	 * @throws RestJSException
+	 */
 	public void generate(String nameSpace, URL... urls) throws RestJSException {
 		if (urls == null || urls.length == 0) {
 			throw new RestJSNullURL("URLs cannot be null or empty");
 		}
 
 		log.debug("Scanning " + urls.toString());
-		// Set classes to be scanned
 		try {
+			// Set classes to be scanned
 			annotationDB.scanArchives(urls);
 		} catch (IOException e) {
 			log.error("Failed to scan urls: " + e.getMessage());
@@ -155,7 +169,8 @@ public class RestJSGenerator {
 	}
 
 	/**
-	 * Validates rest methods.
+	 * Validates rest methods.True if is a public method that is annotated with
+	 * {@link Path}.
 	 * 
 	 * @param method
 	 * @return True if is a public method that is annotated with {@link Path}.
@@ -165,6 +180,14 @@ public class RestJSGenerator {
 				&& method.isAnnotationPresent(Path.class);
 	}
 
+	/**
+	 * Write a command based on method JAX-RS annotations to the writer.
+	 * 
+	 * @param method
+	 * @param nameSpace
+	 * @param name
+	 * @throws RestJSException
+	 */
 	private void writeMethod(Method method, String nameSpace, String name)
 			throws RestJSException {
 		Produces produces = method.getAnnotation(Produces.class);
@@ -194,18 +217,30 @@ public class RestJSGenerator {
 		variables.put("contentType", getContentType(consumes));
 		variables.put("httpMet", getHttpMethod(method));
 		variables.put("path", path.value());
-		// Method definition
 		try {
+			// Method definition
 			render.render("method.ftl", variables, writer, null);
 		} catch (IOException | TemplateException e) {
 			throw new RestJSException("Failed to render method.ftl", e);
 		}
 	}
 
+	/**
+	 * Add " around the string.
+	 * 
+	 * @param value
+	 * @return
+	 */
 	private String envelop(String value) {
 		return new StringBuilder("\"").append(value).append("\"").toString();
 	}
 
+	/**
+	 * Resolve data type (Produces content). Default is text.
+	 * 
+	 * @param produces
+	 * @return
+	 */
 	private String getDataType(Produces produces) {
 		if (produces == null) {
 			return envelop("text");
@@ -221,6 +256,13 @@ public class RestJSGenerator {
 		}
 	}
 
+	/**
+	 * Resolve content type (Consumes content). Default is null, no content is
+	 * received.
+	 * 
+	 * @param consumes
+	 * @return
+	 */
 	private String getContentType(Consumes consumes) {
 		if (consumes != null) {
 			return envelop(consumes.value()[0]);
@@ -229,6 +271,12 @@ public class RestJSGenerator {
 		}
 	}
 
+	/**
+	 * Resolve HTTP method. Default is GET.
+	 * 
+	 * @param method
+	 * @return
+	 */
 	private String getHttpMethod(Method method) {
 		String methodStr = HttpMethod.GET;
 		// Most used first
@@ -247,12 +295,32 @@ public class RestJSGenerator {
 		return envelop(methodStr);
 	}
 
+	/**
+	 * Extract all parameters from method. All parameters are added into
+	 * paramNames list in the order declared in the method. ParamTypes list is
+	 * the class type of each parameter.
+	 * 
+	 * @param paramTypes
+	 *            Type of all parameters.
+	 * @param paramAnnon
+	 *            Annotations of all parameters
+	 * @param queryParams
+	 *            Query parameters of the method
+	 * @param formParams
+	 *            Form parameters of the method
+	 * @param pathParams
+	 *            Path parameters of the method
+	 * @param paramNames
+	 *            Names of all parameters of the method
+	 * @throws RestJSInvalidArgumentException
+	 */
 	private void extractParameters(Class<?>[] paramTypes,
 			Annotation[][] paramAnnon, List<String> queryParams,
 			List<String> formParams, List<String> pathParams,
 			List<String> paramNames) throws RestJSInvalidArgumentException {
 		boolean hasNonAnnoted = false;
 
+		// If an Annotated parameter is found, continue outer loop (annonLoop)
 		annonLoop: for (int i = 0; i < paramAnnon.length; i++) {
 			Annotation[] a = paramAnnon[i];
 			for (Annotation an : a) {

@@ -14,7 +14,7 @@ public class RestJSException extends Exception {
 	private static final long serialVersionUID = 6127707821322547396L;
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public RestJSException() {
 		super();

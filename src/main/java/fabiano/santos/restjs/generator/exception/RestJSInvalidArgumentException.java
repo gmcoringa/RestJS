@@ -4,6 +4,8 @@
 package fabiano.santos.restjs.generator.exception;
 
 /**
+ * Exception for invalid arguments.
+ * 
  * @author fabiano.santos
  * 
  */
