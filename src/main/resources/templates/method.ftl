@@ -31,11 +31,11 @@ function ${nameSpace}.${name}.prototype.${name} = function(async,<#t>
 	
 	<#-- Form parameter --><#t>
 	<#if formParams?has_content><#t>
-	var formParams = {};
-	<#list formParams as formParam><#t>
-	formParams["${formParam}"] = "${formParam}";
-	</#list><#t>
-	var data = JSON.stringify(formParams);
+		var formParams = {};
+		<#list formParams as formParam><#t>
+		formParams["${formParam}"] = ${formParam};
+		</#list><#t>
+		var data = JSON.stringify(formParams);
 	</#if><#t>
 	<#-- Non annotated parameter --><#t>
 	<#if dataContent?has_content><#t>

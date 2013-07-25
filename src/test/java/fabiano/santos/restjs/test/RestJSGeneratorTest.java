@@ -8,9 +8,9 @@ import java.io.StringWriter;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.scannotation.ClasspathUrlFinder;
 
 import fabiano.santos.restjs.generator.exception.RestJSException;
+import fabiano.santos.restjs.generator.service.RestJSClassPathScan;
 import fabiano.santos.restjs.generator.service.RestJSGenerator;
 
 /**
@@ -23,7 +23,7 @@ public class RestJSGeneratorTest {
 	public void testSimpleClass() throws RestJSException {
 		StringWriter writer = new StringWriter();
 		RestJSGenerator generator = new RestJSGenerator("/api/restjs", writer);
-		generator.generate("RestJS", ClasspathUrlFinder.findClassPaths());
+		generator.generate("RestJS", RestJSClassPathScan.findClassPaths());
 		String api = writer.toString();
 		Assert.assertTrue("API has content", api.length() > 0);
 		System.out.println(api);
